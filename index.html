@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Attachra — Open Attachment Gateway</title>
+<meta name="description" content="Attachra is a self-hosted policy engine for outbound email attachments. It intercepts mail via a Postfix milter, applies your policies, and replaces attachments with revocable download links served from your own storage.">
+<meta property="og:title" content="Attachra — Open Attachment Gateway">
+<meta property="og:description" content="A self-hosted policy engine for outbound email attachments. Policies, revocable links, audit trail — on your own infrastructure.">
+<meta property="og:url" content="https://attachra.org">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1522'/%3E%3Cpath d='M19.5 8.5a4 4 0 0 0-5.66 0l-6 6a5.6 5.6 0 0 0 7.92 7.92l6.5-6.5' fill='none' stroke='%23ffffff' stroke-width='2.6' stroke-linecap='round'/%3E%3Cpath d='M21.5 26.5l4-6.5' fill='none' stroke='%232f7df6' stroke-width='3.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#0c111c; --bg2:#111726; --bg3:#171f31;
+  --line:#232c40; --line2:#2e3a54;
+  --fg:#e8edf5; --fg2:#a9b4c8; --fg3:#78849c;
+  --accent:#4d9dff; --accent2:#1a5fe0; --accent-dim:rgba(77,157,255,.12);
+  --grad:linear-gradient(135deg,#5aa7ff,#1a5fe0);
+  --mono:ui-monospace,'SF Mono',SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.6;font-size:16px;
+  -webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+section{padding:72px 0}
+h2{font-size:clamp(26px,4vw,34px);letter-spacing:-.02em;margin-bottom:12px}
+.kicker{font-family:var(--mono);font-size:13px;color:var(--accent);text-transform:uppercase;
+  letter-spacing:.14em;margin-bottom:10px}
+.lead{color:var(--fg2);max-width:62ch}
+code,pre{font-family:var(--mono)}
+
+/* header */
+header{position:sticky;top:0;z-index:50;background:rgba(11,14,20,.82);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--fg);font-weight:650;font-size:18px;
+  letter-spacing:-.01em}
+.brand:hover{text-decoration:none}
+.brand svg{flex:none}
+.nav-links{display:flex;align-items:center;gap:26px;font-size:14.5px}
+.nav-links a{color:var(--fg2)}
+.nav-links a:hover{color:var(--fg);text-decoration:none}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:8px;
+  font-weight:600;font-size:15px;border:1px solid transparent;transition:.15s}
+.btn:hover{text-decoration:none}
+.btn-primary{background:var(--grad);color:#fff}
+.btn-primary:hover{filter:brightness(1.12)}
+.btn-ghost{border-color:var(--line2);color:var(--fg)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+.btn-gh{padding:7px 14px;font-size:14px}
+
+/* hero */
+.hero{padding:96px 0 72px;background:
+  radial-gradient(700px 340px at 78% -10%,rgba(77,157,255,.11),transparent 65%),
+  radial-gradient(520px 300px at 12% 0%,rgba(77,157,255,.05),transparent 60%)}
+.hero h1{font-size:clamp(34px,6vw,58px);line-height:1.08;letter-spacing:-.03em;max-width:17ch}
+.hero .lead{margin:22px 0 30px;font-size:18px}
+.cta{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:26px}
+.meta{font-family:var(--mono);font-size:13.5px;color:var(--fg3)}
+.meta span{color:var(--line2);padding:0 8px}
+
+/* strip */
+.strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg2)}
+.strip p{padding:44px 0;text-align:center;font-size:clamp(19px,3vw,26px);font-weight:600;
+  letter-spacing:-.015em;color:var(--fg2)}
+.strip strong{color:var(--accent);font-weight:650}
+
+/* cards */
+.grid{display:grid;gap:18px;margin-top:36px}
+.grid>*{min-width:0}
+.grid-2{grid-template-columns:repeat(2,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:24px}
+.card h3{font-size:17px;margin-bottom:8px;letter-spacing:-.01em}
+.card p{font-size:14.5px;color:var(--fg2)}
+.card .ico{width:34px;height:34px;border-radius:8px;background:var(--accent-dim);color:var(--accent);
+  display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.after{margin-top:26px;color:var(--fg3);font-size:15px;max-width:70ch}
+
+/* diagram */
+.diagram{margin-top:38px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;
+  padding:18px;overflow-x:auto}
+.diagram svg{display:block;min-width:640px;width:100%;height:auto}
+
+/* quickstart */
+.qs .card{display:flex;flex-direction:column}
+.qs h3{font-size:16px;margin-bottom:14px}
+.qs h3 code{color:var(--accent);font-size:14px}
+pre{background:#0d1117;border:1px solid var(--line);border-radius:10px;padding:16px 18px;
+  font-size:13.5px;line-height:1.65;overflow-x:auto;color:#d7e0ea}
+pre .c{color:var(--fg3)}
+pre .p{color:var(--accent);user-select:none}
+.cap{margin-top:12px;font-size:13.5px;color:var(--fg3)}
+.qs-more{margin-top:26px;font-size:15px}
+
+/* status */
+.status{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:12px;padding:28px 30px;max-width:820px}
+.status h2{font-size:22px}
+.status p{color:var(--fg2);font-size:15px;margin:10px 0 14px}
+.status a{font-size:14.5px}
+
+/* cta band */
+.band{border-top:1px solid var(--line);background:
+  radial-gradient(560px 260px at 50% 120%,rgba(77,157,255,.14),transparent 70%),var(--bg2);
+  text-align:center}
+.band h2{max-width:22ch;margin:0 auto 26px}
+
+/* footer */
+footer{border-top:1px solid var(--line);padding:36px 0 44px;font-size:14px;color:var(--fg3)}
+.foot{display:flex;flex-wrap:wrap;gap:14px 28px;align-items:center;justify-content:space-between}
+.foot-links{display:flex;flex-wrap:wrap;gap:22px}
+.foot-links a{color:var(--fg2)}
+.copy{margin-top:16px;font-size:13px}
+
+@media (max-width:860px){
+  .grid-4{grid-template-columns:repeat(2,1fr)}
+  .nav-links a:not(.btn){display:none}
+}
+@media (max-width:620px){
+  section{padding:56px 0}
+  .hero{padding:72px 0 56px}
+  .grid-2,.grid-4{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top" aria-label="Attachra home">
+      <svg width="26" height="26" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="mark-g" x1="0" y1="0" x2=".45" y2="1"><stop offset="0" stop-color="#5aa7ff"/><stop offset="1" stop-color="#1a5fe0"/></linearGradient></defs><rect width="32" height="32" rx="7" fill="#0d1522"/><path d="M19.5 8.5a4 4 0 0 0-5.66 0l-6 6a5.6 5.6 0 0 0 7.92 7.92l6.5-6.5" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M21.5 26.5l4-6.5" fill="none" stroke="url(#mark-g)" stroke-width="3.4" stroke-linecap="round"/></svg>
+      Attachra
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#problem">Problem</a>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#quickstart">Quickstart</a>
+      <a class="btn btn-ghost btn-gh" href="https://github.com/302-digital/attachra">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<div class="hero">
+  <div class="wrap">
+    <p class="kicker">Open Attachment Gateway</p>
+    <h1>Govern how files leave your organization by email.</h1>
+    <p class="lead">Attachra is a self-hosted policy engine for outbound email attachments.
+    It is not a mail server — it sits next to Postfix and handles what your MTA
+    and your spam/AV stack don't.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/302-digital/attachra">View on GitHub</a>
+      <a class="btn btn-ghost" href="#quickstart">Quickstart</a>
+    </div>
+    <p class="meta">v0.1.0<span>·</span>AGPL-3.0<span>·</span>single static binary<span>·</span>amd64 + arm64</p>
+  </div>
+</div>
+
+<div class="strip">
+  <div class="wrap">
+    <p>Rspamd solved it for spam. ClamAV solved it for viruses.<br><strong>Attachra solves it for attachments.</strong></p>
+  </div>
+</div>
+
+<section id="problem">
+  <div class="wrap">
+    <p class="kicker">The problem</p>
+    <h2>An unsolved governance gap</h2>
+    <p class="lead">If you run your own mail infrastructure (Postfix, Mailcow, iRedMail,
+    grommunio…), outbound attachments are an unsolved governance gap:</p>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>No control over what leaves</h3>
+        <p>Anyone can attach anything to anyone — any size, any sensitivity. There is no
+        policy layer between &ldquo;user hits send&rdquo; and &ldquo;file is gone.&rdquo;</p>
+      </div>
+      <div class="card">
+        <h3>Large attachments break email</h3>
+        <p>You either reject them at the MTA, or let people paste links to cloud-drive
+        shares you don't manage and can't audit.</p>
+      </div>
+      <div class="card">
+        <h3>No revocation</h3>
+        <p>Once an attachment is sent, it's sent. Shared by mistake, employee left,
+        recipient mailbox compromised — there is nothing you can do.</p>
+      </div>
+      <div class="card">
+        <h3>No audit trail</h3>
+        <p>Who sent what, to whom, when, and who downloaded it — answering that today
+        means grepping mail logs, if you log bodies at all (you shouldn't).</p>
+      </div>
+    </div>
+    <p class="after">SaaS DLP products &ldquo;solve&rdquo; this by routing your mail through a third
+    party. If you self-host your mail specifically to avoid that, they aren't an option.</p>
+  </div>
+</section>
+
+<section id="how" style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <p class="kicker">How it works</p>
+    <h2>A milter, a policy engine, your storage</h2>
+    <p class="lead">Attachra intercepts outbound mail via a Postfix milter, evaluates each
+    attachment against your policies, and — where policy says so — replaces the attachment
+    with a link to a file held in your own S3-compatible storage. The recipient gets a
+    normal-looking email with a download link instead of a payload. You get a policy
+    engine, an audit trail, and the ability to revoke access after the fact.</p>
+    <div class="diagram" role="img" aria-label="Architecture diagram: outbound mail flows into Postfix, which talks to the Attachra milter adapter over the milter protocol and receives rewritten MIME back. The milter adapter feeds the policy engine, which drives three components: the storage engine (S3, MinIO, Ceph or filesystem), the link engine (per-recipient signed revocable links), and the audit log (who sent and downloaded what, and when).">
+      <svg viewBox="0 0 920 372" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="13">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" fill="#78849c"/>
+          </marker>
+          <marker id="ar-b" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+            <path d="M0 0L10 5L0 10z" fill="#4d9dff"/>
+          </marker>
+        </defs>
+
+        <!-- row 1: outbound mail → Postfix ⇄ Attachra -->
+        <text x="26" y="62" fill="#a9b4c8" font-size="12.5">Outbound</text>
+        <text x="26" y="80" fill="#a9b4c8" font-size="12.5">mail</text>
+        <line x1="26" y1="98" x2="102" y2="98" stroke="#78849c" stroke-width="1.5" marker-end="url(#ar)"/>
+
+        <rect x="110" y="56" width="140" height="68" rx="10" fill="#171f31" stroke="#2e3a54"/>
+        <text x="180" y="95" fill="#e8edf5" text-anchor="middle" font-size="15" font-weight="600">Postfix</text>
+
+        <text x="315" y="64" fill="#78849c" text-anchor="middle" font-size="11">milter protocol</text>
+        <line x1="258" y1="78" x2="372" y2="78" stroke="#78849c" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="372" y1="102" x2="258" y2="102" stroke="#4d9dff" stroke-width="1.5" marker-end="url(#ar-b)"/>
+        <text x="315" y="122" fill="#4d9dff" text-anchor="middle" font-size="11">rewritten MIME</text>
+
+        <rect x="380" y="48" width="160" height="84" rx="10" fill="#14203a" stroke="#4d9dff"/>
+        <text x="460" y="84" fill="#e8edf5" text-anchor="middle" font-size="15" font-weight="600">Attachra</text>
+        <text x="460" y="106" fill="#a9b4c8" text-anchor="middle" font-size="11.5">milter adapter</text>
+
+        <!-- row 2: policy engine -->
+        <line x1="460" y1="132" x2="460" y2="174" stroke="#78849c" stroke-width="1.5" marker-end="url(#ar)"/>
+        <rect x="350" y="176" width="220" height="62" rx="10" fill="#171f31" stroke="#2e3a54"/>
+        <text x="460" y="202" fill="#e8edf5" text-anchor="middle" font-size="14" font-weight="600">Policy Engine</text>
+        <text x="460" y="222" fill="#a9b4c8" text-anchor="middle" font-size="11">sender · recipient · size · type</text>
+
+        <!-- fan-out -->
+        <path d="M410 238 L410 258 L155 258 L155 276" fill="none" stroke="#78849c" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="460" y1="238" x2="460" y2="276" stroke="#78849c" stroke-width="1.5" marker-end="url(#ar)"/>
+        <path d="M510 238 L510 258 L765 258 L765 276" fill="none" stroke="#78849c" stroke-width="1.5" marker-end="url(#ar)"/>
+
+        <!-- row 3: storage / link / audit -->
+        <rect x="30" y="278" width="250" height="72" rx="10" fill="#171f31" stroke="#2e3a54"/>
+        <text x="155" y="308" fill="#e8edf5" text-anchor="middle" font-size="14" font-weight="600">Storage Engine</text>
+        <text x="155" y="330" fill="#a9b4c8" text-anchor="middle" font-size="11.5">S3 · MinIO · Ceph · filesystem</text>
+
+        <rect x="335" y="278" width="250" height="72" rx="10" fill="#171f31" stroke="#2e3a54"/>
+        <text x="460" y="308" fill="#e8edf5" text-anchor="middle" font-size="14" font-weight="600">Link Engine</text>
+        <text x="460" y="330" fill="#a9b4c8" text-anchor="middle" font-size="11.5">per-recipient · signed · revocable</text>
+
+        <rect x="640" y="278" width="250" height="72" rx="10" fill="#171f31" stroke="#2e3a54"/>
+        <text x="765" y="308" fill="#e8edf5" text-anchor="middle" font-size="14" font-weight="600">Audit</text>
+        <text x="765" y="330" fill="#a9b4c8" text-anchor="middle" font-size="11.5">who sent / downloaded, when</text>
+      </svg>
+    </div>
+    <p class="after">The core policy, storage, link and audit logic knows nothing about
+    Postfix — other mail transports (SMTP proxy, Exim, Stalwart…) can be added as
+    adapters without touching the core.</p>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <p class="kicker">Features</p>
+    <h2>Built for people who run their own mail</h2>
+    <div class="grid grid-4">
+      <div class="card">
+        <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="19" cy="15" r="3"/></svg></div>
+        <h3>Declarative policy engine</h3>
+        <p>Match on sender, recipient, size, type and more. Hot reload and a dry-run mode:
+        decisions are logged, no mail is modified until you flip the switch.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11 5"/><path d="M14 11a5 5 0 0 0-7.07 0l-2.83 2.83a5 5 0 0 0 7.07 7.07L13 19"/></svg></div>
+        <h3>Revocable download links</h3>
+        <p>Per-recipient signed links with TTL and download limits. Revoke a file after
+        sending — or place it under legal hold.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg></div>
+        <h3>Your storage, not ours</h3>
+        <p>S3-compatible backends (AWS S3, MinIO, Ceph) or plain local filesystem. Files
+        never leave your infrastructure.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13l2 2 4-4"/></svg></div>
+        <h3>Audit trail</h3>
+        <p>Tamper-evident log of who sent and who downloaded what, and when — with
+        streaming export.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+        <h3>REST API + CLI</h3>
+        <p>Manage policies, links, tokens and stats via the API (admin / viewer / auditor
+        roles) or the <code>attachractl</code> CLI.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></div>
+        <h3>Built for operators</h3>
+        <p>Prometheus metrics, health endpoints, structured logs, systemd-hardened
+        Debian package.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3>Mail is never lost</h3>
+        <p>Every failure resolves to a configured decision: fail-open (deliver unmodified)
+        or fail-closed (tempfail). Your call, per policy.</p>
+      </div>
+      <div class="card">
+        <div class="ico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg></div>
+        <h3>Single static binary</h3>
+        <p>One cross-compiled binary for linux amd64 and arm64. No runtime dependencies.
+        SQLite out of the box.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="quickstart" class="qs" style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <p class="kicker">Quickstart</p>
+    <h2>Two ways in</h2>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Debian package <code>(real host)</code></h3>
+        <pre><code>sudo apt install ./attachra_&lt;version&gt;_amd64.deb
+sudo attachra setup   <span class="c"># interactive wizard, recommends dry-run</span>
+sudo postconf -e 'smtpd_milters = &lt;existing milters&gt;, inet:127.0.0.1:6785'
+sudo systemctl start attachra</code></pre>
+        <p class="cap">Grab the .deb from
+        <a href="https://github.com/302-digital/attachra/releases">GitHub Releases</a>.
+        Works alongside your existing milter chain (rspamd first).</p>
+      </div>
+      <div class="card">
+        <h3>Docker Compose <code>(try it locally)</code></h3>
+        <pre><code>git clone https://github.com/302-digital/attachra
+cd attachra/deploy/dev
+docker compose up --build</code></pre>
+        <p class="cap">Brings up Postfix, MinIO and Attachra wired together with a
+        &ldquo;replace everything&rdquo; dev policy.</p>
+      </div>
+    </div>
+    <p class="qs-more"><a href="https://github.com/302-digital/attachra#quickstart">Full quickstart and grommunio walk-through in the README →</a></p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="status">
+      <h2>Where the project is</h2>
+      <p><strong>v0.1.0 is released.</strong> The full pipeline — milter → MIME parsing →
+      policy engine → storage → personal download link → MIME rewrite → audit trail —
+      works end to end and has been tested in production on a live grommunio
+      (Postfix-based) mail deployment. It's usable today, at your own risk: config,
+      policy-file and API formats may still change before v1.0.0, where format stability
+      becomes guaranteed (SemVer).</p>
+      <a href="https://github.com/302-digital/attachra/blob/main/CHANGELOG.md">Changelog</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/302-digital/attachra#status--roadmap">Roadmap</a>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <h2>Self-hosting your mail? Take control of what leaves it.</h2>
+    <a class="btn btn-primary" href="https://github.com/302-digital/attachra">View on GitHub</a>
+  </div>
+</section>
+
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <span>Attachra — Open Attachment Gateway</span>
+      <nav class="foot-links" aria-label="Footer">
+        <a href="https://github.com/302-digital/attachra">GitHub</a>
+        <a href="https://github.com/302-digital/attachra/blob/main/CHANGELOG.md">Changelog</a>
+        <a href="mailto:security@attachra.org">Security</a>
+        <a href="https://github.com/302-digital/attachra/blob/main/LICENSE">License: AGPL-3.0-or-later</a>
+      </nav>
+    </div>
+    <p class="copy">© 2026 the Attachra authors. Attachra is free and open-source software.</p>
+  </div>
+</footer>
+
+</body>
+</html>
