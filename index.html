@@ -96,6 +96,12 @@ pre{background:#0d1117;border:1px solid var(--line);border-radius:10px;padding:1
   font-size:13.5px;line-height:1.65;overflow-x:auto;color:#d7e0ea}
 pre .c{color:var(--fg3)}
 pre .p{color:var(--accent);user-select:none}
+pre .j{color:var(--accent)}
+.pane-label{font-family:var(--mono);font-size:12px;color:var(--fg3);text-transform:uppercase;
+  letter-spacing:.12em;margin-bottom:8px}
+.api-grid{margin-top:30px}
+.api-grid>div{display:flex;flex-direction:column}
+.api-grid pre{flex:1;margin:0}
 .cap{margin-top:12px;font-size:13.5px;color:var(--fg3)}
 .qs-more{margin-top:26px;font-size:15px}
 
@@ -141,6 +147,7 @@ footer{border-top:1px solid var(--line);padding:36px 0 44px;font-size:14px;color
     <nav class="nav-links" aria-label="Main">
       <a href="#problem">Problem</a>
       <a href="#how">How it works</a>
+      <a href="#api">API</a>
       <a href="#features">Features</a>
       <a href="#quickstart">Quickstart</a>
       <a class="btn btn-ghost btn-gh" href="https://github.com/302-digital/attachra">
@@ -272,6 +279,46 @@ footer{border-top:1px solid var(--line);padding:36px 0 44px;font-size:14px;color
     <p class="after">The core policy, storage, link and audit logic knows nothing about
     Postfix — other mail transports (SMTP proxy, Exim, Stalwart…) can be added as
     adapters without touching the core.</p>
+  </div>
+</section>
+
+<section id="api">
+  <div class="wrap">
+    <p class="kicker">REST API</p>
+    <h2>Sent by mistake? Revoke it.</h2>
+    <p class="lead">Everything the CLI does goes through the same documented REST API —
+    scriptable from your existing tooling. One call, and the recipient's download link
+    is dead:</p>
+    <div class="grid grid-2 api-grid">
+      <div>
+        <p class="pane-label">Request</p>
+        <pre><code>LINK=9f3a1c2e8b4d6f01a7c5e392d84b6f10
+
+curl -s -X POST \
+  -H "Authorization: Bearer $ATTACHRA_TOKEN" \
+  http://127.0.0.1:18080/api/v1/links/$LINK/revoke</code></pre>
+      </div>
+      <div>
+        <p class="pane-label">Response</p>
+        <pre><code>{
+  "id": "9f3a1c2e8b4d6f01a7c5e392d84b6f10",
+  "message_id": "b41d0aa8c3f2e967",
+  "attachment_id": "5c77d2091b3e4af8",
+  "recipient": "partner@example.net",
+  "expires_at": "2026-08-14T09:12:44Z",
+  "max_downloads": 3,
+  "downloads": 1,
+  <span class="j">"status": "revoked",</span>
+  "hold": false,
+  "created_at": "2026-07-15T09:12:44Z"
+}</code></pre>
+      </div>
+    </div>
+    <p class="cap" style="margin-top:16px">Bearer-token auth with three roles (admin / viewer /
+    auditor), deny by default. The API listens on localhost — it is never exposed to the
+    internet. The full surface is described by
+    <a href="https://github.com/302-digital/attachra/blob/main/api/openapi.yaml">openapi.yaml</a> —
+    the spec is the source of truth, linted in CI.</p>
   </div>
 </section>
 
