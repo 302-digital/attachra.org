@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1280" height="640" viewBox="0 0 1280 640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background radial glows (top-right and top-left, matching hero gradient) -->
+    <radialGradient id="gtr" gradientUnits="userSpaceOnUse" cx="1100" cy="-20" r="520">
+      <stop offset="0%" stop-color="#4d9dff" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#4d9dff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="gtl" gradientUnits="userSpaceOnUse" cx="130" cy="0" r="330">
+      <stop offset="0%" stop-color="#4d9dff" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#4d9dff" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Logo slash gradient -->
+    <linearGradient id="sg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5aa7ff"/>
+      <stop offset="1" stop-color="#1a5fe0"/>
+    </linearGradient>
+    <!-- Arrow marker -->
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 0L10 5L0 10z" fill="#78849c"/>
+    </marker>
+  </defs>
+
+  <!-- ── Background ── -->
+  <rect width="1280" height="640" fill="#0c111c"/>
+  <rect width="1280" height="640" fill="url(#gtr)"/>
+  <rect width="1280" height="640" fill="url(#gtl)"/>
+
+  <!-- Vertical divider between left and right zones -->
+  <line x1="640" y1="48" x2="640" y2="580" stroke="#1e2738" stroke-width="1"/>
+
+  <!-- ════════════════════════════════════════════
+       LEFT ZONE  (x: 50–620)
+       Brand mark, wordmark, kicker, tagline
+       ════════════════════════════════════════════ -->
+
+  <!-- Logo mark — 80×80 px, scaled 2.5× from the 32×32 brand art -->
+  <g transform="translate(60,68)">
+    <g transform="scale(2.5)">
+      <rect width="32" height="32" rx="7" fill="#0d1522"/>
+      <!-- Paperclip arc (white stroke) -->
+      <path d="M19.5 8.5a4 4 0 0 0-5.66 0l-6 6a5.6 5.6 0 0 0 7.92 7.92l6.5-6.5"
+            fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round"/>
+      <!-- Gradient slash -->
+      <path d="M21.5 26.5l4-6.5"
+            fill="none" stroke="url(#sg)" stroke-width="3.4" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="165" y="130"
+        font-family="sans-serif" font-size="64" font-weight="700"
+        fill="#e8edf5" letter-spacing="-1">Attachra</text>
+
+  <!-- Kicker — mono uppercase accent -->
+  <text x="62" y="192"
+        font-family="monospace" font-size="13"
+        fill="#4d9dff" letter-spacing="3">OPEN ATTACHMENT GATEWAY</text>
+
+  <!-- Thin divider under header area -->
+  <line x1="62" y1="218" x2="560" y2="218" stroke="#232c40" stroke-width="1"/>
+
+  <!-- Tagline (two lines, large, readable at thumbnail) -->
+  <text x="62" y="272"
+        font-family="sans-serif" font-size="27" fill="#a9b4c8">A self-hosted policy engine</text>
+  <text x="62" y="312"
+        font-family="sans-serif" font-size="27" fill="#a9b4c8">for outbound email attachments.</text>
+
+  <!-- Feature summary lines (subtle texture at lower-left) -->
+  <text x="62" y="392"
+        font-family="monospace" font-size="15" fill="#3a4d66">policies · revocable links · audit trail</text>
+  <text x="62" y="424"
+        font-family="monospace" font-size="15" fill="#3a4d66">Postfix milter · S3 / MinIO / filesystem</text>
+  <text x="62" y="456"
+        font-family="monospace" font-size="15" fill="#3a4d66">single static binary · linux/amd64 + arm64</text>
+
+  <!-- ════════════════════════════════════════════
+       RIGHT ZONE  (x: 660–1220)
+       Architecture flow diagram
+       ════════════════════════════════════════════ -->
+
+  <!-- "outbound mail" label + dashed incoming arrow -->
+  <text x="686" y="174" font-family="monospace" font-size="12" fill="#78849c">outbound mail</text>
+  <line x1="686" y1="190" x2="849" y2="190"
+        stroke="#78849c" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#ar)"/>
+
+  <!-- Postfix box -->
+  <rect x="850" y="162" width="180" height="60" rx="10"
+        fill="#171f31" stroke="#2e3a54" stroke-width="1.5"/>
+  <text x="940" y="199" text-anchor="middle"
+        font-family="sans-serif" font-size="17" font-weight="600" fill="#e8edf5">Postfix</text>
+
+  <!-- Milter protocol arrow: Postfix → Attachra -->
+  <line x1="940" y1="222" x2="940" y2="260"
+        stroke="#78849c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <text x="953" y="246" font-family="monospace" font-size="11" fill="#78849c">milter</text>
+
+  <!-- Attachra ambient glow (subtle blue wash behind box) -->
+  <rect x="816" y="250" width="248" height="94" rx="14"
+        fill="#4d9dff" fill-opacity="0.05"/>
+
+  <!-- Attachra box (highlighted, blue border) -->
+  <rect x="824" y="258" width="232" height="74" rx="10"
+        fill="#0e1a2e" stroke="#4d9dff" stroke-width="2"/>
+  <text x="940" y="294" text-anchor="middle"
+        font-family="sans-serif" font-size="21" font-weight="700" fill="#e8edf5">Attachra</text>
+  <text x="940" y="320" text-anchor="middle"
+        font-family="monospace" font-size="12" fill="#a9b4c8">milter adapter · policy engine</text>
+
+  <!-- Fan-out from Attachra bottom (940, 332) ──┬── trunk at y=376 -->
+  <line x1="940" y1="332" x2="940" y2="376"
+        stroke="#78849c" stroke-width="1.5"/>
+  <!-- Horizontal trunk connecting three branches -->
+  <line x1="788" y1="376" x2="1092" y2="376"
+        stroke="#78849c" stroke-width="1.5"/>
+  <!-- Three verticals down to output boxes -->
+  <line x1="788" y1="376" x2="788" y2="395"
+        stroke="#78849c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="940" y1="376" x2="940" y2="395"
+        stroke="#78849c" stroke-width="1.5" marker-end="url(#ar)"/>
+  <line x1="1092" y1="376" x2="1092" y2="395"
+        stroke="#78849c" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- Storage box (center x=788) -->
+  <rect x="718" y="397" width="140" height="60" rx="8"
+        fill="#171f31" stroke="#2e3a54" stroke-width="1.5"/>
+  <text x="788" y="424" text-anchor="middle"
+        font-family="sans-serif" font-size="15" font-weight="600" fill="#e8edf5">Storage</text>
+  <text x="788" y="443" text-anchor="middle"
+        font-family="monospace" font-size="11" fill="#a9b4c8">S3 · MinIO · fs</text>
+
+  <!-- Links box (center x=940) -->
+  <rect x="870" y="397" width="140" height="60" rx="8"
+        fill="#171f31" stroke="#2e3a54" stroke-width="1.5"/>
+  <text x="940" y="424" text-anchor="middle"
+        font-family="sans-serif" font-size="15" font-weight="600" fill="#e8edf5">Links</text>
+  <text x="940" y="443" text-anchor="middle"
+        font-family="monospace" font-size="11" fill="#a9b4c8">revocable · signed</text>
+
+  <!-- Audit box (center x=1092) -->
+  <rect x="1022" y="397" width="140" height="60" rx="8"
+        fill="#171f31" stroke="#2e3a54" stroke-width="1.5"/>
+  <text x="1092" y="424" text-anchor="middle"
+        font-family="sans-serif" font-size="15" font-weight="600" fill="#e8edf5">Audit</text>
+  <text x="1092" y="443" text-anchor="middle"
+        font-family="monospace" font-size="11" fill="#a9b4c8">tamper-evident</text>
+
+  <!-- ── Footer bar ── -->
+  <line x1="48" y1="576" x2="1232" y2="576" stroke="#232c40" stroke-width="1"/>
+  <text x="640" y="613" text-anchor="middle"
+        font-family="monospace" font-size="14" fill="#78849c" letter-spacing="1">
+    AGPL-3.0  ·  single static binary  ·  attachra.org
+  </text>
+</svg>
