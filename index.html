@@ -171,7 +171,7 @@ footer{border-top:1px solid var(--line);padding:36px 0 44px;font-size:14px;color
       <a class="btn btn-primary" href="https://github.com/302-digital/attachra">View on GitHub</a>
       <a class="btn btn-ghost" href="#quickstart">Quickstart</a>
     </div>
-    <p class="meta">v0.1.0<span>·</span>AGPL-3.0<span>·</span>single static binary<span>·</span>amd64 + arm64</p>
+    <p class="meta">v0.2.1<span>·</span>AGPL-3.0<span>·</span>single static binary<span>·</span>amd64 + arm64</p>
   </div>
 </div>
 
@@ -386,11 +386,13 @@ curl -s -X POST \
     <div class="grid grid-2">
       <div class="card">
         <h3>Debian package <code>(real host)</code></h3>
-        <pre><code>sudo apt install ./attachra_&lt;version&gt;_amd64.deb
+        <pre><code>curl -fsSL https://attachra.org/install | sudo bash
 sudo attachra setup   <span class="c"># interactive wizard, recommends dry-run</span>
 sudo postconf -e 'smtpd_milters = &lt;existing milters&gt;, inet:127.0.0.1:6785'
 sudo systemctl start attachra</code></pre>
-        <p class="cap">Grab the .deb from
+        <p class="cap">The installer only downloads the signed release .deb, verifies
+        checksums and runs apt — <a href="https://attachra.org/install">read it first</a>.
+        Prefer doing it by hand? Grab the .deb from
         <a href="https://github.com/302-digital/attachra/releases">GitHub Releases</a>.
         Works alongside your existing milter chain (rspamd first).</p>
       </div>
@@ -400,7 +402,8 @@ sudo systemctl start attachra</code></pre>
 cd attachra/deploy/dev
 docker compose up --build</code></pre>
         <p class="cap">Brings up Postfix, MinIO and Attachra wired together with a
-        &ldquo;replace everything&rdquo; dev policy.</p>
+        &ldquo;replace everything&rdquo; dev policy. A prebuilt multi-arch image is
+        also published as <code>ghcr.io/302-digital/attachra</code>.</p>
       </div>
     </div>
     <p class="qs-more"><a href="https://github.com/302-digital/attachra#quickstart">Full quickstart and grommunio walk-through in the README →</a></p>
@@ -411,12 +414,12 @@ docker compose up --build</code></pre>
   <div class="wrap">
     <div class="status">
       <h2>Where the project is</h2>
-      <p><strong>v0.1.0 is released.</strong> The full pipeline — milter → MIME parsing →
+      <p><strong>v0.2.1 is released.</strong> The full pipeline — milter → MIME parsing →
       policy engine → storage → personal download link → MIME rewrite → audit trail —
       works end to end and has been tested in production on a live grommunio
-      (Postfix-based) mail deployment. It's usable today, at your own risk: config,
-      policy-file and API formats may still change before v1.0.0, where format stability
-      becomes guaranteed (SemVer).</p>
+      (Postfix-based) mail deployment. Release artifacts are signed (Sigstore keyless).
+      It's usable today, at your own risk: config, policy-file and API formats may
+      still change before v1.0.0, where format stability becomes guaranteed (SemVer).</p>
       <a href="https://github.com/302-digital/attachra/blob/main/CHANGELOG.md">Changelog</a>
       &nbsp;·&nbsp;
       <a href="https://github.com/302-digital/attachra#status--roadmap">Roadmap</a>
