@@ -171,7 +171,7 @@ footer{border-top:1px solid var(--line);padding:36px 0 44px;font-size:14px;color
       <a class="btn btn-primary" href="https://github.com/302-digital/attachra">View on GitHub</a>
       <a class="btn btn-ghost" href="#quickstart">Quickstart</a>
     </div>
-    <p class="meta">v0.2.1<span>·</span>AGPL-3.0<span>·</span>single static binary<span>·</span>amd64 + arm64</p>
+    <p class="meta">v0.2.2<span>·</span>AGPL-3.0<span>·</span>single static binary<span>·</span>amd64 + arm64</p>
   </div>
 </div>
 
@@ -414,10 +414,13 @@ docker compose up --build</code></pre>
   <div class="wrap">
     <div class="status">
       <h2>Where the project is</h2>
-      <p><strong>v0.2.1 is released.</strong> The full pipeline — milter → MIME parsing →
+      <p><strong>v0.2.2 is released.</strong> The full pipeline — milter → MIME parsing →
       policy engine → storage → personal download link → MIME rewrite → audit trail —
       works end to end and has been tested in production on a live grommunio
       (Postfix-based) mail deployment. Release artifacts are signed (Sigstore keyless).
+      This release adds tamper-evident audit verification (<code>attachra audit
+      verify</code>), audit-log retention with legal-hold guarantees, and a binary
+      attachment integrity fix on the milter path.
       It's usable today, at your own risk: config, policy-file and API formats may
       still change before v1.0.0, where format stability becomes guaranteed (SemVer).</p>
       <a href="https://github.com/302-digital/attachra/blob/main/CHANGELOG.md">Changelog</a>
